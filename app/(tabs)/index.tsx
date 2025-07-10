@@ -270,10 +270,7 @@ export default function HomeScreen() {
   }, [bannerIndex]);
 
   const handleItemPress = (item, section) => {
-    router.push({
-      pathname: '/(tabs)/item-detail',
-      params: { ...item, section },
-    });
+    router.push(`/product/${item.id}`);
   };
 
   const renderBulkBuyItem = ({ item }: { item: any }) => (
