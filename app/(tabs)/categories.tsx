@@ -39,8 +39,12 @@ export default function CategoriesScreen() {
     addToCart(product);
   };
 
+  const handleProductPress = (product: any) => {
+    router.push(`/product/${product.id}`);
+  };
+
   const renderProduct = ({ item }: { item: any }) => (
-    <View style={styles.productCardClean}>
+    <TouchableOpacity style={styles.productCardClean} onPress={() => handleProductPress(item)}>
       <View style={styles.productRowClean}>
         <Image source={{ uri: item.image }} style={styles.productImageClean} />
         <View style={styles.productInfoClean}>
@@ -76,7 +80,7 @@ export default function CategoriesScreen() {
       <TouchableOpacity style={styles.loginButtonClean} onPress={() => handleAddToCart(item)}>
         <Text style={styles.loginButtonTextClean}>Add to Cart</Text>
       </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 
   // Product Detail Modal (same card design, more details)

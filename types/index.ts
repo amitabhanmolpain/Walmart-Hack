@@ -11,6 +11,9 @@ export interface Product {
   offers: string[];
   margin: number;
   inStock: boolean;
+  weight?: string;
+  flavor?: string;
+  packType?: string;
 }
 
 export interface Category {

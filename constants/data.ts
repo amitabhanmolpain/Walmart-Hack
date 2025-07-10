@@ -48,18 +48,6 @@ export const categories: Category[] = [
     subcategories: ['Fresh Vegetables', 'Fresh Fruits', 'Frozen Foods', 'Dairy Products', 'Meat & Fish']
   },
   {
-    id: 'luggageapparel',
-    name: 'Luggage & Apparel',
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&h=300&fit=crop',
-    subcategories: ['Bags & Luggage', 'Clothing', 'Shoes', 'Accessories', 'Watches', 'Jewelry']
-  },
-  {
-    id: 'electronics',
-    name: 'Electronics & Gadgets',
-    image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=300&h=300&fit=crop',
-    subcategories: ['Mobile Phones', 'Laptops', 'Accessories', 'Smart Watches', 'Headphones']
-  },
-  {
     id: 'kitchenappliances',
     name: 'Kitchen & Home Appliances',
     image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop',
