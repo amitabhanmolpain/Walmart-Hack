@@ -5,6 +5,8 @@ import type { FC } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { products } from '@/constants/data';
 import { useEffect, useState } from 'react';
+// Add this import at the top of the file
+import { getExpiryDate } from '@/app/product/[id]';
 
 let ProfitChart: FC<any> | null = null;
 let hasChart = false;
@@ -26,6 +28,8 @@ const ProfitChartPlaceholder = () => (
 export default function ProfitsScreen() {
   // Read profit and EMI data from localStorage
   const [profitData, setProfitData] = useState<{profit: number, emi: number, date: string}[]>([]);
+  const [expiringItems, setExpiringItems] = useState<{id: string, name: string, expiryDate: Date}[]>([]);
+  
   useEffect(() => {
     try {
       const data = JSON.parse(localStorage.getItem('profitData') || '[]');
@@ -33,7 +37,37 @@ export default function ProfitsScreen() {
     } catch {
       setProfitData([]);
     }
+    
+    // Check for expiring items
+    checkExpiringItems();
   }, []);
+  
+  const checkExpiringItems = () => {
+    const today = new Date();
+    const expiringProducts: {id: string, name: string, expiryDate: Date}[] = [];
+    
+    // Check all products for expiry dates
+    products.forEach(product => {
+      const expiryDateStr = getExpiryDate(product.name, product.category);
+      const expiryDate = new Date(expiryDateStr);
+      
+      // Calculate days until expiry
+      const timeDiff = expiryDate.getTime() - today.getTime();
+      const daysUntilExpiry = Math.ceil(timeDiff / (1000 * 3600 * 24));
+      
+      // If product expires in 15 days or less, add to expiring items
+      if (daysUntilExpiry <= 15 && daysUntilExpiry > 0) {
+        expiringProducts.push({
+          id: product.id,
+          name: product.name,
+          expiryDate: expiryDate
+        });
+      }
+    });
+    
+    setExpiringItems(expiringProducts);
+  };
+  
   const realProfit = profitData.reduce((sum, p) => sum + p.profit, 0);
   const emiThisMonth = profitData.filter(p => p.emi > 0 && new Date(p.date).getMonth() === new Date().getMonth()).reduce((sum, p) => sum + p.emi, 0);
   const profitDataChart = [0, realProfit * 0.2, realProfit * 0.4, realProfit * 0.6, realProfit * 0.8, realProfit];
@@ -44,14 +78,31 @@ export default function ProfitsScreen() {
         <Text style={styles.headerTitle}>Profits</Text>
       </LinearGradient>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Expiring Items Alert */}
+        {expiringItems.length > 0 && (
+          <View style={styles.expiringItemsAlert}>
+            <Text style={styles.expiringItemsTitle}>⚠️ Items Expiring Soon</Text>
+            {expiringItems.map(item => (
+              <Text key={item.id} style={styles.expiringItemText}>
+                {item.name} - Expires on {item.expiryDate.toLocaleDateString('en-IN', {day: '2-digit', month: 'short', year: 'numeric'})}
+              </Text>
+            ))}
+            <Text style={styles.expiringItemsMessage}>
+              Consider promoting these items to sell before they expire!
+            </Text>
+          </View>
+        )}
+        
         <View style={styles.profitCard}>
           <TrendingUp size={36} color="#2196F3" />
           <Text style={styles.profitLabel}>Total Profit</Text>
           <Text style={styles.profitValue}>₹{realProfit.toLocaleString()}</Text>
         </View>
         {emiThisMonth > 0 && (
-          <View style={{ backgroundColor: '#FFFDE7', borderRadius: 12, padding: 16, marginBottom: 18, alignItems: 'center' }}>
-            <Text style={{ color: '#FBC02D', fontWeight: 'bold', fontSize: 18 }}>₹{emiThisMonth} EMI this month</Text>
+          <View style={styles.emiCard}>
+            <Wallet2 size={28} color="#FBC02D" />
+            <Text style={styles.emiLabel}>EMI Earnings This Month</Text>
+            <Text style={styles.emiValue}>₹{emiThisMonth.toLocaleString()}</Text>
           </View>
         )}
         <View style={styles.graphSection}>
@@ -73,6 +124,7 @@ export default function ProfitsScreen() {
   );
 }
 
+// Add new styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -136,5 +188,48 @@ const styles = StyleSheet.create({
     color: '#333',
     fontWeight: '600',
     marginBottom: 8,
+  },
+  expiringItemsAlert: {
+    backgroundColor: '#FFEBEE',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#F44336',
+  },
+  expiringItemsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#D32F2F',
+    marginBottom: 8,
+  },
+  expiringItemText: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 4,
+  },
+  expiringItemsMessage: {
+    fontSize: 14,
+    fontStyle: 'italic',
+    color: '#D32F2F',
+    marginTop: 8,
+  },
+  emiCard: {
+    backgroundColor: '#FFFDE7',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    alignItems: 'center',
+    flexDirection: 'column',
+  },
+  emiLabel: {
+    fontSize: 16,
+    color: '#333',
+    marginTop: 8,
+  },
+  emiValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FBC02D',
   },
 });

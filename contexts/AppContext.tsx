@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { CartItem, Product } from '@/types';
 import { translations } from '@/constants/languages';
 import translationService from '@/services/translationService';
+import { getExpiryDate } from '@/app/product/[id]';
+import { products } from '@/constants/data';
 
 interface AppContextType {
   selectedLanguage: string;
@@ -27,6 +29,7 @@ interface AppContextType {
   notifications: any[];
   addNotification: (notification: any) => void;
   clearNotifications: () => void;
+  checkExpiringItems: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -184,6 +187,42 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setNotifications([]);
   };
 
+  // Check for expiring items and add notifications
+  useEffect(() => {
+    checkExpiringItems();
+  }, []);
+  
+  const checkExpiringItems = () => {
+    const today = new Date();
+    const expiringProducts = [];
+    
+    // Check all products for expiry dates
+    products.forEach(product => {
+      const expiryDateStr = getExpiryDate(product.name, product.category);
+      const expiryDate = new Date(expiryDateStr);
+      
+      // Calculate days until expiry
+      const timeDiff = expiryDate.getTime() - today.getTime();
+      const daysUntilExpiry = Math.ceil(timeDiff / (1000 * 3600 * 24));
+      
+      // If product expires in 15 days or less, add to expiring items
+      if (daysUntilExpiry <= 15 && daysUntilExpiry > 0) {
+        const notification = {
+          id: `expiry-${product.id}`,
+          title: 'Item Expiring Soon',
+          message: `${product.name} will expire on ${expiryDateStr}. Consider promoting this item!`,
+          time: 'Today',
+          type: 'expiry'
+        };
+        
+        // Check if notification already exists
+        const notificationExists = notifications.some(n => n.id === notification.id);
+        if (!notificationExists) {
+          addNotification(notification);
+        }
+      }
+    });
+  };
   return (
     <AppContext.Provider
       value={{

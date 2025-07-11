@@ -21,7 +21,7 @@ export default function CartScreen() {
   const [pendingOrder, setPendingOrder] = useState<any>(null);
   const [orderStatus, setOrderStatus] = useState('none'); // 'none', 'inway', 'delivered'
 
-  const getCartProfit = () => cart.reduce((sum, item) => sum + (item.product.mrp - item.product.price) * item.quantity, 0);
+  const getCartProfit = () => cart.reduce((sum, item) => sum + (item.product.margin * item.quantity), 0);
 
   const saveOrderProfit = (profit: number, emi: number) => {
     let profitData = [];
