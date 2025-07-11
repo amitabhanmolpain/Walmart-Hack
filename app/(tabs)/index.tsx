@@ -2,12 +2,48 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions, FlatList } from 'react-native';
 import { useApp } from '@/contexts/AppContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Search, MapPin, ChartBar as BarChart3, ShoppingCart, Bell, Mic, Repeat, PiggyBank } from 'lucide-react-native';
+import { Search, ChartBar as BarChart3, ShoppingCart, Mic, Repeat, PiggyBank } from 'lucide-react-native';
 import { brands, products, categories } from '@/constants/data';
 import TranslatedText from '@/components/TranslatedText';
 import { useRouter } from 'expo-router';
 
 const { width } = Dimensions.get('window');
+
+// Advertisement banner data
+const adBanners = [
+  {
+    id: '1',
+    title: 'Free Delivery',
+    subtitle: 'On orders above ₹2000',
+    image: 'https://images.pexels.com/photos/4393021/pexels-photo-4393021.jpeg?auto=compress&cs=tinysrgb&w=400',
+    backgroundColor: ['#4CAF50', '#66BB6A'],
+    icon: '🚚'
+  },
+  {
+    id: '2',
+    title: 'Fresh Fruits & Vegetables',
+    subtitle: 'Farm fresh daily delivery',
+    image: 'https://images.pexels.com/photos/1327838/pexels-photo-1327838.jpeg?auto=compress&cs=tinysrgb&w=400',
+    backgroundColor: ['#FF9800', '#FFB74D'],
+    icon: '🥕'
+  },
+  {
+    id: '3',
+    title: 'Wide Range of Skin Products',
+    subtitle: 'Premium beauty essentials',
+    image: 'https://images.pexels.com/photos/3735746/pexels-photo-3735746.jpeg?auto=compress&cs=tinysrgb&w=400',
+    backgroundColor: ['#E91E63', '#F06292'],
+    icon: '✨'
+  },
+  {
+    id: '4',
+    title: 'Baby Care Essentials',
+    subtitle: 'Everything for your little one',
+    image: 'https://images.pexels.com/photos/298863/pexels-photo-298863.jpeg?auto=compress&cs=tinysrgb&w=400',
+    backgroundColor: ['#9C27B0', '#BA68C8'],
+    icon: '👶'
+  }
+];
 
 // Sample bulk buy discount items data
 const bulkBuyItems = [
@@ -108,14 +144,14 @@ const bannerAds = [
 ];
 
 export default function HomeScreen() {
-  const { t, addToCart, getCartItemCount } = useApp();
+  const { t, addToCart } = useApp();
   const router = useRouter();
   const [currentSlide, setCurrentSlide] = useState(0);
-  const { notifications } = useApp();
-  const hasNotifications = notifications.length > 0;
   const flatListRef = useRef(null);
   const [bannerIndex, setBannerIndex] = useState(0);
+  const [adBannerIndex, setAdBannerIndex] = useState(0);
   const bannerRef = useRef<FlatList<any>>(null);
+  const adBannerRef = useRef<FlatList<any>>(null);
 
 
 
@@ -251,6 +287,15 @@ export default function HomeScreen() {
     return () => clearInterval(interval);
   }, [bannerIndex]);
 
+  // Auto-scroll for advertisement banners
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setAdBannerIndex((prev) => (prev + 1) % adBanners.length);
+      adBannerRef.current?.scrollToIndex({ index: (adBannerIndex + 1) % adBanners.length, animated: true });
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [adBannerIndex]);
+
   // Helper function to safely parse price strings
   const parsePrice = (priceString: string | undefined): number => {
     if (!priceString) return 0;
@@ -297,7 +342,7 @@ export default function HomeScreen() {
   };
 
   const renderBulkBuyItem = ({ item }: { item: any }) => (
-    <TouchableOpacity onPress={() => handleItemPress(item, 'bulkBuy')}>
+    <TouchableOpacity onPress={() => handleItemPress(item, 'bulkBuy')} activeOpacity={1}>
       <View style={styles.bulkBuyCard}>
         <Image source={{ uri: item.image }} style={styles.bulkBuyImage} />
         <View style={styles.bulkBuyContent}>
@@ -324,7 +369,7 @@ export default function HomeScreen() {
   }).current;
 
   const renderTopMarginItem = ({ item }: { item: any }) => (
-    <TouchableOpacity onPress={() => handleItemPress(item, 'topMargin')} activeOpacity={0.8}>
+    <TouchableOpacity onPress={() => handleItemPress(item, 'topMargin')} activeOpacity={1}>
       <View style={styles.topMarginCard}>
         <Image source={{ uri: item.image }} style={styles.topMarginCardImage} />
         <Text style={styles.topMarginCardName} numberOfLines={2}>{item.name}</Text>
@@ -363,7 +408,7 @@ export default function HomeScreen() {
   );
 
   const renderTopSellingItem = ({ item }: { item: any }) => (
-    <TouchableOpacity onPress={() => handleItemPress(item, 'topSelling')} activeOpacity={0.8}>
+    <TouchableOpacity onPress={() => handleItemPress(item, 'topSelling')} activeOpacity={1}>
       <View style={styles.topSellingCard}>
         <Image source={{ uri: item.image }} style={styles.topSellingCardImage} />
         <Text style={styles.topSellingCardName} numberOfLines={2}>{item.name}</Text>
@@ -418,21 +463,8 @@ export default function HomeScreen() {
             <Text style={styles.logoSubtext}>Wholesale</Text>
           </View>
           <View style={styles.headerActionsAligned}>
-            <TouchableOpacity style={styles.notificationButton} onPress={() => router.push('/(tabs)/notifications')}>
-              <Bell size={24} color="#fff" />
-              {hasNotifications && (
-                <View style={styles.notificationBadge}>
-                  <Text style={styles.notificationBadgeText}>{notifications.length}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cartButton} onPress={() => router.push('/(tabs)/cart')}>
+            <TouchableOpacity style={styles.cartButton} onPress={() => router.push('/(tabs)/cart')} activeOpacity={0.7}>
               <ShoppingCart size={24} color="#fff" />
-              {getCartItemCount() > 0 && (
-                <View style={styles.cartBadge}>
-                  <Text style={styles.cartBadgeText}>{getCartItemCount()}</Text>
-                </View>
-              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -476,6 +508,43 @@ export default function HomeScreen() {
             <Text style={styles.aiLabel}>Voice Bot</Text>
             <Text style={styles.aiLabel}>AI Reorder</Text>
             <Text style={styles.aiLabel}>Discount Predictor</Text>
+          </View>
+        </View>
+
+        {/* Advertisement Banner Slideshow */}
+        <View style={styles.adBannerSection}>
+          <FlatList
+            ref={adBannerRef}
+            data={adBanners}
+            renderItem={({ item }) => (
+              <LinearGradient colors={item.backgroundColor} style={styles.adBannerCard}>
+                <View style={styles.adBannerContent}>
+                  <View style={styles.adBannerText}>
+                    <Text style={styles.adBannerIcon}>{item.icon}</Text>
+                    <Text style={styles.adBannerTitle}>{item.title}</Text>
+                    <Text style={styles.adBannerSubtitle}>{item.subtitle}</Text>
+                  </View>
+                  <Image source={{ uri: item.image }} style={styles.adBannerImage} />
+                </View>
+              </LinearGradient>
+            )}
+            keyExtractor={(item) => item.id}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            scrollEnabled={false}
+            style={styles.adBannerList}
+          />
+          <View style={styles.adBannerPagination}>
+            {adBanners.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.adBannerDot,
+                  index === adBannerIndex && styles.adBannerDotActive
+                ]}
+              />
+            ))}
           </View>
         </View>
 
@@ -1258,22 +1327,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 1,
   },
-  cartBadge: {
-    position: 'absolute',
-    top: -5,
-    right: -5,
-    backgroundColor: '#FF3B30',
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cartBadgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
   categorySlideItem: {
     backgroundColor: '#fff',
     borderRadius: 12,
@@ -1298,5 +1351,74 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
     textAlign: 'center',
+  },
+  adBannerSection: {
+    margin: 16,
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  adBannerList: {
+    flex: 1,
+  },
+  adBannerCard: {
+    width: width - 32,
+    height: 140,
+    borderRadius: 16,
+  },
+  adBannerContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+  },
+  adBannerText: {
+    flex: 1,
+  },
+  adBannerIcon: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  adBannerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 4,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  adBannerSubtitle: {
+    fontSize: 14,
+    color: '#fff',
+    opacity: 0.9,
+  },
+  adBannerImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginLeft: 16,
+  },
+  adBannerPagination: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  adBannerDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    marginHorizontal: 4,
+  },
+  adBannerDotActive: {
+    backgroundColor: '#fff',
+    width: 20,
   },
 });

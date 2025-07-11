@@ -1,11 +1,11 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Chrome as Home, Grid3x3 as Grid3X3, Percent, ShoppingCart, User, TrendingUp } from 'lucide-react-native';
+import { Chrome as Home, Grid3x3 as Grid3X3, ShoppingCart, User, TrendingUp } from 'lucide-react-native';
 import { useApp } from '@/contexts/AppContext';
 import { View, Text, StyleSheet } from 'react-native';
 
 export default function TabLayout() {
-  const { t, getCartItemCount, cart } = useApp();
+  const { t, cart } = useApp();
 
   return (
     <View style={{ flex: 1, backgroundColor: '#000' }}>
@@ -64,8 +64,8 @@ export default function TabLayout() {
         <Tabs.Screen
           name="offers"
           options={{
-            title: t('profits'),
-            tabBarLabel: t('profits'),
+            title: '₹ ' + t('profits'),
+            tabBarLabel: '₹ ' + t('profits'),
             tabBarIcon: ({ color, size }) => (
               <TrendingUp size={size} color={color} />
             ),
@@ -85,16 +85,6 @@ export default function TabLayout() {
                   </View>
                 )}
               </View>
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="profile"
-          options={{
-            title: t('profile'),
-            tabBarLabel: t('profile'),
-            tabBarIcon: ({ color, size }) => (
-              <User size={size} color={color} />
             ),
           }}
         />
