@@ -251,20 +251,37 @@ export default function HomeScreen() {
     return () => clearInterval(interval);
   }, [bannerIndex]);
 
+  // Helper function to safely parse price strings
+  const parsePrice = (priceString: string | undefined): number => {
+    if (!priceString) return 0;
+    return parseFloat(priceString.replace(/[₹,]/g, ''));
+  };
+
   const handleItemPress = (item, section) => {
+    let price, mrp;
+    
+    // Handle different item structures based on section
+    if (section === 'bulkBuy') {
+      price = parsePrice(item.offerPrice);
+      mrp = parsePrice(item.originalPrice);
+    } else {
+      price = parsePrice(item.price);
+      mrp = item.mrp ? parsePrice(item.mrp) : price * 1.2;
+    }
+
     // Create a product object that matches our Product interface
     const productData = {
       id: item.id,
       name: item.name,
-      price: parseFloat(item.price.replace('₹', '')),
-      mrp: parseFloat(item.mrp?.replace('₹', '') || item.price.replace('₹', '')) * 1.2, // Estimate MRP if not provided
+      price: price,
+      mrp: mrp,
       discount: 15, // Default discount
       image: item.image,
       category: section === 'topMargin' ? 'packagedfoods' : 'beverages',
       description: item.weight || '1kg pack',
       brand: 'Premium',
       offers: ['2 Offers'],
-      margin: parseFloat(item.margin || '20'),
+      margin: item.margin ? parseFloat(item.margin) : 20,
       inStock: true,
       weight: item.weight || '1kg'
     };
@@ -325,15 +342,15 @@ export default function HomeScreen() {
             const productForCart = {
               id: item.id,
               name: item.name,
-              price: parseFloat(item.price.replace('₹', '')),
-              mrp: parseFloat(item.price.replace('₹', '')) * 1.25,
+              price: parsePrice(item.price),
+              mrp: parsePrice(item.price) * 1.25,
               discount: 20,
               image: item.image,
               category: 'packagedfoods',
               description: '1kg pack',
               brand: 'Premium',
               offers: ['2 Offers'],
-              margin: parseFloat(item.margin || '20'),
+              margin: item.margin ? parseFloat(item.margin) : 20,
               inStock: true
             };
             addToCart(productForCart);
@@ -361,15 +378,15 @@ export default function HomeScreen() {
             const productForCart = {
               id: item.id,
               name: item.name,
-              price: parseFloat(item.price.replace('₹', '')),
-              mrp: parseFloat(item.price.replace('₹', '')) * 1.15,
+              price: parsePrice(item.price),
+              mrp: parsePrice(item.price) * 1.15,
               discount: 13,
               image: item.image,
               category: 'beverages',
               description: '1L pack',
               brand: 'Fresh',
               offers: ['Best Price'],
-              margin: parseFloat(item.price.replace('₹', '')) * 0.15,
+              margin: parsePrice(item.price) * 0.15,
               inStock: true
             };
             addToCart(productForCart);
