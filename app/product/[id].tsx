@@ -8,7 +8,7 @@ import { useApp } from '@/contexts/AppContext';
 const { width } = Dimensions.get('window');
 
 // Function to generate random expiry date based on product type
-function getExpiryDate(productName: string, category: string) {
+export function getExpiryDate(productName: string, category: string) {
   const today = new Date();
   const isFreshProduct = /fresh|milk|dairy|vegetable|fruit|egg|meat|fish|bread|yogurt|curd|paneer|organic/i.test(productName + category);
   const isBeverage = /juice|milk|drink|beverage|bournvita|chocolate|tea|coffee/i.test(productName + category);

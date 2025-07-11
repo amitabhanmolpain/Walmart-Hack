@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions, FlatList } from 'react-native';
 import { useApp } from '@/contexts/AppContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Search, MapPin, ChartBar as BarChart3, ShoppingCart, Bell, Mic, Repeat, PiggyBank } from 'lucide-react-native';
+import { Search, MapPin, BarChart3, ShoppingCart, Bell, Mic, Repeat, PiggyBank, TrendingUp } from 'lucide-react-native';
 import { brands, products, categories } from '@/constants/data';
 import TranslatedText from '@/components/TranslatedText';
 import { useRouter } from 'expo-router';
@@ -425,6 +425,9 @@ export default function HomeScreen() {
                   <Text style={styles.notificationBadgeText}>{notifications.length}</Text>
                 </View>
               )}
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.notificationButton} onPress={() => router.push('/(tabs)/profits')}>
+              <TrendingUp size={24} color="#fff" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.cartButton} onPress={() => router.push('/(tabs)/cart')}>
               <ShoppingCart size={24} color="#fff" />
