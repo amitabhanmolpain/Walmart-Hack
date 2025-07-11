@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, useGlobalSearchParams } from 'expo-router';
 import { ArrowLeft, Heart, ShoppingCart, Barcode } from 'lucide-react-native';
 import { products } from '@/constants/data';
 import { useApp } from '@/contexts/AppContext';
@@ -10,18 +10,18 @@ const { width } = Dimensions.get('window');
 // Function to generate random expiry date based on product type
 function getExpiryDate(productName: string, category: string) {
   const today = new Date();
-  const isFreshProduct = /fresh|milk|dairy|vegetable|fruit|egg|meat|fish|bread|yogurt|curd|paneer/i.test(productName + category);
-  const isBeverage = /juice|milk|drink|beverage/i.test(productName + category);
-  const isPackaged = /biscuit|snack|chips|noodle|pasta|cereal|oil|ghee|masala|spice|dal|rice|atta/i.test(productName + category);
+  const isFreshProduct = /fresh|milk|dairy|vegetable|fruit|egg|meat|fish|bread|yogurt|curd|paneer|organic/i.test(productName + category);
+  const isBeverage = /juice|milk|drink|beverage|bournvita|chocolate|tea|coffee/i.test(productName + category);
+  const isPackaged = /biscuit|snack|chips|noodle|pasta|cereal|oil|ghee|masala|spice|dal|rice|atta|honey|quinoa|almonds/i.test(productName + category);
   
   let daysToAdd = 30; // Default for other products
   
   if (isFreshProduct) {
-    daysToAdd = Math.floor(Math.random() * 5) + 2; // 2-6 days
+    daysToAdd = Math.floor(Math.random() * 7) + 3; // 3-9 days
   } else if (isBeverage) {
-    daysToAdd = Math.floor(Math.random() * 30) + 15; // 15-45 days
+    daysToAdd = Math.floor(Math.random() * 180) + 90; // 3-9 months
   } else if (isPackaged) {
-    daysToAdd = Math.floor(Math.random() * 365) + 180; // 6-18 months
+    daysToAdd = Math.floor(Math.random() * 365) + 365; // 1-2 years
   }
   
   today.setDate(today.getDate() + daysToAdd);
@@ -58,13 +58,24 @@ function getProductSpecs(product: any) {
 }
 
 export default function ProductDetailScreen() {
-  const { id } = useLocalSearchParams();
+  const { id, productData } = useLocalSearchParams();
   const router = useRouter();
   const { addToCart } = useApp();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isWishlisted, setIsWishlisted] = useState(false);
 
-  const product = products.find(p => p.id === id);
+  // Try to get product from passed data first, then from products array
+  let product;
+  if (productData) {
+    try {
+      product = JSON.parse(productData as string);
+    } catch (error) {
+      console.error('Error parsing product data:', error);
+      product = products.find(p => p.id === id);
+    }
+  } else {
+    product = products.find(p => p.id === id);
+  }
 
   if (!product) {
     return (
@@ -171,7 +182,8 @@ export default function ProductDetailScreen() {
 
           {/* Expiry Date */}
           <Text style={styles.expiryDate}>
-            Expiry Date: {specifications.find(spec => spec.label === 'Expiry Date')?.value}
+            <Text style={styles.expiryLabel}>Expiry Date: </Text>
+            <Text style={styles.expiryValue}>{getExpiryDate(product.name, product.category)}</Text>
           </Text>
         </View>
 
@@ -434,8 +446,19 @@ const styles = StyleSheet.create({
   },
   expiryDate: {
     fontSize: 14,
-    color: '#1976D2',
+    color: '#333',
     fontWeight: '500',
+    marginBottom: 8,
+  },
+  expiryLabel: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+  },
+  expiryValue: {
+    fontSize: 14,
+    color: '#E53935',
+    fontWeight: 'bold',
   },
   section: {
     padding: 16,

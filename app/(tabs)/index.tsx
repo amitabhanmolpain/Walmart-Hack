@@ -125,7 +125,6 @@ export default function HomeScreen() {
       id: '1',
       name: 'Organic Basmati Rice',
       price: '₹120',
-      mrp: '₹150',
       margin: '30',
       image: 'https://images.pexels.com/photos/1586201375761-83865001e31c?auto=compress&cs=tinysrgb&w=400',
     },
@@ -133,7 +132,6 @@ export default function HomeScreen() {
       id: '2',
       name: 'Pure Ghee',
       price: '₹180',
-      mrp: '₹220',
       margin: '40',
       image: 'https://images.pexels.com/photos/1556909114-f6e7ad7d3136?auto=compress&cs=tinysrgb&w=400',
     },
@@ -141,7 +139,6 @@ export default function HomeScreen() {
       id: '3',
       name: 'Premium Honey',
       price: '₹250',
-      mrp: '₹320',
       margin: '70',
       image: 'https://images.pexels.com/photos/1586201375761-83865001e31c?auto=compress&cs=tinysrgb&w=400',
     },
@@ -149,7 +146,6 @@ export default function HomeScreen() {
       id: '4',
       name: 'Organic Quinoa',
       price: '₹200',
-      mrp: '₹280',
       margin: '80',
       image: 'https://images.pexels.com/photos/4110225/pexels-photo-4110225.jpeg?auto=compress&cs=tinysrgb&w=400',
     },
@@ -157,7 +153,6 @@ export default function HomeScreen() {
       id: '5',
       name: 'Cold Pressed Oil',
       price: '₹150',
-      mrp: '₹200',
       margin: '50',
       image: 'https://images.pexels.com/photos/1556909114-f6e7ad7d3136?auto=compress&cs=tinysrgb&w=400',
     },
@@ -165,7 +160,6 @@ export default function HomeScreen() {
       id: '6',
       name: 'Organic Almonds',
       price: '₹300',
-      mrp: '₹400',
       margin: '100',
       image: 'https://images.pexels.com/photos/5709661/pexels-photo-5709661.jpeg?auto=compress&cs=tinysrgb&w=400',
     },
@@ -173,7 +167,6 @@ export default function HomeScreen() {
       id: '7',
       name: 'Premium Tea',
       price: '₹80',
-      mrp: '₹120',
       margin: '40',
       image: 'https://images.pexels.com/photos/1546173159-83865001e31c?auto=compress&cs=tinysrgb&w=400',
     },
@@ -181,7 +174,6 @@ export default function HomeScreen() {
       id: '8',
       name: 'Organic Spices',
       price: '₹120',
-      mrp: '₹180',
       margin: '60',
       image: 'https://images.pexels.com/photos/1556909114-f6e7ad7d3136?auto=compress&cs=tinysrgb&w=400',
     },
@@ -192,70 +184,60 @@ export default function HomeScreen() {
       id: '1',
       name: 'Fresh Milk',
       price: '₹60',
-      mrp: '₹70',
       image: 'https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=400',
     },
     {
       id: '2',
       name: 'Whole Wheat Bread',
       price: '₹35',
-      mrp: '₹40',
       image: 'https://images.pexels.com/photos/144569/pexels-photo-144569.jpeg?auto=compress&cs=tinysrgb&w=400',
     },
     {
       id: '3',
       name: 'Fresh Eggs',
       price: '₹120',
-      mrp: '₹140',
       image: 'https://images.pexels.com/photos/162712/egg-white-food-protein-162712.jpeg?auto=compress&cs=tinysrgb&w=400',
     },
     {
       id: '4',
       name: 'Bananas',
       price: '₹40',
-      mrp: '₹50',
       image: 'https://images.pexels.com/photos/47305/bananas-banana-bunch-yellow-47305.jpeg?auto=compress&cs=tinysrgb&w=400',
     },
     {
       id: '5',
       name: 'Organic Tomatoes',
       price: '₹80',
-      mrp: '₹100',
       image: 'https://images.pexels.com/photos/1327838/pexels-photo-1327838.jpeg?auto=compress&cs=tinysrgb&w=400',
     },
     {
       id: '6',
       name: 'Fresh Onions',
       price: '₹30',
-      mrp: '₹40',
       image: 'https://images.pexels.com/photos/144387/pexels-photo-144387.jpeg?auto=compress&cs=tinysrgb&w=400',
     },
     {
       id: '7',
       name: 'Green Peas',
       price: '₹90',
-      mrp: '₹110',
       image: 'https://images.pexels.com/photos/533360/pexels-photo-533360.jpeg?auto=compress&cs=tinysrgb&w=400',
     },
     {
       id: '8',
       name: 'Carrots',
       price: '₹50',
-      mrp: '₹65',
       image: 'https://images.pexels.com/photos/143133/pexels-photo-143133.jpeg?auto=compress&cs=tinysrgb&w=400',
     },
     {
       id: '9',
       name: 'Potatoes',
       price: '₹25',
-      mrp: '₹35',
       image: 'https://images.pexels.com/photos/144387/pexels-photo-144387.jpeg?auto=compress&cs=tinysrgb&w=400',
     },
     {
       id: '10',
       name: 'Cucumber',
       price: '₹20',
-      mrp: '₹30',
       image: 'https://images.pexels.com/photos/2329440/pexels-photo-2329440.jpeg?auto=compress&cs=tinysrgb&w=400',
     },
   ];
@@ -270,7 +252,31 @@ export default function HomeScreen() {
   }, [bannerIndex]);
 
   const handleItemPress = (item, section) => {
-    router.push(`/product/${item.id}`);
+    // Create a product object that matches our Product interface
+    const productData = {
+      id: item.id,
+      name: item.name,
+      price: parseFloat(item.price.replace('₹', '')),
+      mrp: parseFloat(item.mrp?.replace('₹', '') || item.price.replace('₹', '')) * 1.2, // Estimate MRP if not provided
+      discount: 15, // Default discount
+      image: item.image,
+      category: section === 'topMargin' ? 'packagedfoods' : 'beverages',
+      description: item.weight || '1kg pack',
+      brand: 'Premium',
+      offers: ['2 Offers'],
+      margin: parseFloat(item.margin || '20'),
+      inStock: true,
+      weight: item.weight || '1kg'
+    };
+    
+    // Navigate to product detail with the product data
+    router.push({
+      pathname: '/product/[id]',
+      params: { 
+        id: item.id,
+        productData: JSON.stringify(productData)
+      }
+    });
   };
 
   const renderBulkBuyItem = ({ item }: { item: any }) => (
@@ -301,31 +307,74 @@ export default function HomeScreen() {
   }).current;
 
   const renderTopMarginItem = ({ item }: { item: any }) => (
-    <TouchableOpacity onPress={() => handleItemPress(item, 'topMargin')}>
+    <TouchableOpacity onPress={() => handleItemPress(item, 'topMargin')} activeOpacity={0.8}>
       <View style={styles.topMarginCard}>
         <Image source={{ uri: item.image }} style={styles.topMarginCardImage} />
         <Text style={styles.topMarginCardName} numberOfLines={2}>{item.name}</Text>
         <View style={styles.topMarginCardPriceRow}>
-          <Text style={styles.topMarginCardPrice}>₹{item.price}</Text>
-          <Text style={styles.topMarginCardMRP}>₹{item.mrp}</Text>
+          <Text style={styles.topMarginCardPrice}>{item.price}</Text>
+          <Text style={styles.topMarginCardMRP}>MRP: ₹{(parseFloat(item.price.replace('₹', '')) * 1.25).toFixed(0)}</Text>
         </View>
         <View style={styles.marginBadgeGreen}>
           <Text style={styles.marginTextGreen}>₹{item.margin} margin</Text>
         </View>
+        <TouchableOpacity 
+          style={styles.addToCartButtonSmall} 
+          onPress={(e) => {
+            e.stopPropagation();
+            const productForCart = {
+              id: item.id,
+              name: item.name,
+              price: parseFloat(item.price.replace('₹', '')),
+              mrp: parseFloat(item.price.replace('₹', '')) * 1.25,
+              discount: 20,
+              image: item.image,
+              category: 'packagedfoods',
+              description: '1kg pack',
+              brand: 'Premium',
+              offers: ['2 Offers'],
+              margin: parseFloat(item.margin || '20'),
+              inStock: true
+            };
+            addToCart(productForCart);
+          }}
+        >
+          <Text style={styles.addToCartTextSmall}>Add</Text>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
 
   const renderTopSellingItem = ({ item }: { item: any }) => (
-    <TouchableOpacity onPress={() => handleItemPress(item, 'topSelling')}>
+    <TouchableOpacity onPress={() => handleItemPress(item, 'topSelling')} activeOpacity={0.8}>
       <View style={styles.topSellingCard}>
         <Image source={{ uri: item.image }} style={styles.topSellingCardImage} />
         <Text style={styles.topSellingCardName} numberOfLines={2}>{item.name}</Text>
         <View style={styles.topSellingCardPriceRow}>
-          <Text style={styles.topSellingCardPrice}>₹{item.price}</Text>
-          <Text style={styles.topSellingCardMRP}>₹{item.mrp}</Text>
+          <Text style={styles.topSellingCardPrice}>{item.price}</Text>
+          <Text style={styles.topSellingCardMRP}>MRP: ₹{(parseFloat(item.price.replace('₹', '')) * 1.15).toFixed(0)}</Text>
         </View>
-        <TouchableOpacity style={styles.addToCartButton} onPress={() => addToCart(item)}>
+        <TouchableOpacity 
+          style={styles.addToCartButton} 
+          onPress={(e) => {
+            e.stopPropagation();
+            const productForCart = {
+              id: item.id,
+              name: item.name,
+              price: parseFloat(item.price.replace('₹', '')),
+              mrp: parseFloat(item.price.replace('₹', '')) * 1.15,
+              discount: 13,
+              image: item.image,
+              category: 'beverages',
+              description: '1L pack',
+              brand: 'Fresh',
+              offers: ['Best Price'],
+              margin: parseFloat(item.price.replace('₹', '')) * 0.15,
+              inStock: true
+            };
+            addToCart(productForCart);
+          }}
+        >
           <Text style={styles.addToCartText}>Add to Cart</Text>
         </TouchableOpacity>
       </View>
@@ -1063,6 +1112,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   addToCartText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  addToCartButtonSmall: {
+    backgroundColor: '#1565C0',
+    borderRadius: 4,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  addToCartTextSmall: {
     color: '#fff',
     fontSize: 10,
     fontWeight: '600',
