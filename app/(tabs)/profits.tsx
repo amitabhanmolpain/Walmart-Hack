@@ -7,7 +7,6 @@ import { products } from '@/constants/data';
 import { useEffect, useState } from 'react';
 import { getExpiryDate } from '@/app/product/[id]';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Redirect } from 'expo-router';
 
 // Try-catch for chart components to prevent crashes if they fail to load
 let LineChart = null;
@@ -314,8 +313,3 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
 });
-
-
-export default function OffersRedirect() {
-  return <Redirect href="/(tabs)/profits" />;
-}

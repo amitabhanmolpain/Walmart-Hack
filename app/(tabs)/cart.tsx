@@ -5,6 +5,7 @@ import { Minus, Plus, Trash2, MapPin, Navigation, Phone, Clock, ShoppingCart } f
 import LoginModal from '@/components/LoginModal';
 import DeliveryTrackingScreen from '@/components/DeliveryTrackingScreen';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CartScreen() {
   const { t, cart, updateQuantity, removeFromCart, getCartTotal, clearCart, addOutstandingAmount } = useApp();
@@ -21,15 +22,37 @@ export default function CartScreen() {
   const [pendingOrder, setPendingOrder] = useState<any>(null);
   const [orderStatus, setOrderStatus] = useState('none'); // 'none', 'inway', 'delivered'
 
-  const getCartProfit = () => cart.reduce((sum, item) => sum + (item.product.margin * item.quantity), 0);
+  const getCartProfit = () => cart.reduce((sum, item) => sum + ((item.product.mrp - item.product.price) * item.quantity), 0);
 
-  const saveOrderProfit = (profit: number, emi: number) => {
+  const saveOrderProfit = async (profit: number, emi: number) => {
     let profitData = [];
     try {
-      profitData = JSON.parse(localStorage.getItem('profitData') || '[]');
-    } catch {}
-    profitData.push({ profit, emi, date: new Date().toISOString() });
-    localStorage.setItem('profitData', JSON.stringify(profitData));
+      const storedData = await AsyncStorage.getItem('profitData');
+      profitData = storedData ? JSON.parse(storedData) : [];
+    } catch (error) {
+      console.error('Error reading profit data:', error);
+    }
+    
+    // Add product-specific profit data
+    const productProfits = cart.map(item => ({
+      productId: item.product.id,
+      productName: item.product.name,
+      margin: (item.product.mrp - item.product.price) * item.quantity,
+      quantity: item.quantity
+    }));
+    
+    profitData.push({ 
+      profit, 
+      emi, 
+      date: new Date().toISOString(),
+      products: productProfits
+    });
+    
+    try {
+      await AsyncStorage.setItem('profitData', JSON.stringify(profitData));
+    } catch (error) {
+      console.error('Error saving profit data:', error);
+    }
   };
 
   const handlePlaceOrder = () => {
@@ -40,7 +63,7 @@ export default function CartScreen() {
     setShowPaymentModal(true);
   };
 
-  const handlePaymentSubmit = () => {
+  const handlePaymentSubmit = async () => {
     if (!address.trim()) {
       Alert.alert('Address Required', 'Please enter your delivery address.');
       return;
@@ -58,10 +81,10 @@ export default function CartScreen() {
       return;
     }
     // COD order
-    finishOrder(cartTotal, cartProfit, 0);
+    await finishOrder(cartTotal, cartProfit, 0);
   };
 
-  const finishOrder = (cartTotal: number, cartProfit: number, emi: number) => {
+  const finishOrder = async (cartTotal: number, cartProfit: number, emi: number) => {
     const now = new Date();
     const deliveryTime = new Date(now.getTime() + 5 * 60 * 60 * 1000);
     const deliveryTimeString = deliveryTime.toLocaleTimeString('en-US', {

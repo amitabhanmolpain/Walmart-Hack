@@ -62,7 +62,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="offers"
+          name="profits"
           options={{
             title: t('profits'),
             tabBarLabel: t('profits'),
